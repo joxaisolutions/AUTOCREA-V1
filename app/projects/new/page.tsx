@@ -1,193 +1,136 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { ArrowLeft, Zap, Sparkles, MessageSquare, LayoutTemplate, Lightbulb, CheckCircle2, AlertCircle, Code } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { estimateTokens } from "@/lib/utils";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Code2, Sparkles, Loader2, ArrowLeft, Wand2 } from 'lucide-react';
 
 export default function NewProjectPage() {
-  const [description, setDescription] = useState("");
-  const [framework, setFramework] = useState<"react" | "next" | "vue" | "vanilla">("react");
-  const [estimatedCredits, setEstimatedCredits] = useState(0);
-  const [isGenerating, setIsGenerating] = useState(false);
   const router = useRouter();
-
-  const credits = 50000;
-
-  useEffect(() => {
-    const estimated = Math.ceil(estimateTokens(description) * 2.5);
-    setEstimatedCredits(estimated);
-  }, [description]);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [projectName, setProjectName] = useState('');
+  const [description, setDescription] = useState('');
 
   const handleGenerate = async () => {
-    if (!description.trim()) {
-      toast.error("Por favor describe tu aplicación");
-      return;
-    }
-
-    if (estimatedCredits > credits) {
-      toast.error("Créditos insuficientes");
-      return;
-    }
+    if (!projectName || !description) return;
 
     setIsGenerating(true);
-    toast.loading("Generando aplicación...");
-
     setTimeout(() => {
-      toast.success("¡Aplicación generada exitosamente!");
-      router.push("/projects/1");
+      router.push('/projects/1');
     }, 3000);
   };
 
-  return (
-    <div className="min-h-screen bg-primary">
-      {/* Header */}
-      <header className="border-b border-primary/20 bg-primary-dark/50 backdrop-blur-xl sticky top-0 z-50">
-        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-80">
-            <ArrowLeft className="w-5 h-5" />
-            <span>Volver a Proyectos</span>
-          </Link>
+  const templates = [
+    {
+      title: 'Landing Page',
+      description: 'Página de aterrizaje moderna y responsive',
+      prompt: 'Una landing page moderna con secciones de hero, características, testimonios y contacto',
+    },
+    {
+      title: 'Dashboard',
+      description: 'Panel de administración completo',
+      prompt: 'Un dashboard con gráficos, tablas de datos, sidebar de navegación y tarjetas estadísticas',
+    },
+    {
+      title: 'E-commerce',
+      description: 'Tienda online con carrito',
+      prompt: 'Una tienda online con catálogo de productos, carrito de compras y checkout',
+    },
+    {
+      title: 'Blog',
+      description: 'Blog personal con CMS',
+      prompt: 'Un blog con listado de artículos, página de detalle y sistema de comentarios',
+    },
+  ];
 
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent/10 border border-accent/30">
-              <Zap className="w-4 h-4 text-highlight" />
-              <span className="text-sm font-medium">{credits.toLocaleString()} créditos disponibles</span>
+  return (
+    <div className="min-h-screen bg-background">
+      <nav className="fixed top-0 w-full z-50 glass border-b border-primary/10">
+        <div className="container mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Link href="/dashboard" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+                <Code2 className="w-8 h-8 text-accent" />
+                <span className="text-2xl font-bold text-gradient">AUTOCREA</span>
+              </Link>
             </div>
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent to-highlight flex items-center justify-center">
-              <span className="text-sm font-bold">U</span>
-            </div>
+            <Link href="/dashboard">
+              <Button variant="ghost" className="text-foreground hover:text-accent">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Volver al Dashboard
+              </Button>
+            </Link>
           </div>
         </div>
-      </header>
+      </nav>
 
-      <main className="container mx-auto px-6 py-12">
-        <div className="max-w-4xl mx-auto space-y-8">
-          {/* Hero */}
+      <main className="pt-24 container mx-auto px-6 py-12">
+        <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/30 mb-6">
-              <Sparkles className="w-4 h-4 text-highlight" />
-              <span className="text-sm text-highlight">Potenciado por JoxCoder v1</span>
+            <div className="inline-flex items-center space-x-2 glass px-4 py-2 rounded-full mb-6 animate-pulse-slow">
+              <Sparkles className="w-5 h-5 text-accent" />
+              <span className="text-sm text-accent font-medium">Powered by JoxCoder AI</span>
             </div>
-
-            <h1 className="text-5xl font-bold mb-4 text-gradient">
-              ¿Qué quieres crear hoy?
+            <h1 className="text-5xl font-bold mb-4">
+              Crea tu <span className="text-gradient">Aplicación</span>
             </h1>
-            <p className="text-xl text-secondary">Describe tu aplicación y déjanos hacer el resto</p>
+            <p className="text-xl text-muted-foreground">
+              Describe tu proyecto y la IA generará el código por ti
+            </p>
           </div>
 
-          {/* Main Form */}
-          <Card className="p-6 glow">
-            <div className="space-y-6">
-              {/* Framework Selector */}
+          <Card className="glass-strong border-primary/20 mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Wand2 className="w-5 h-5 text-accent" />
+                <span>Genera con IA</span>
+              </CardTitle>
+              <CardDescription>
+                Proporciona detalles sobre tu aplicación y JoxCoder AI la construirá
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
               <div>
-                <label className="block text-sm font-medium mb-3">Framework (opcional)</label>
-                <div className="grid grid-cols-4 gap-3">
-                  {[
-                    { id: "react", name: "React", icon: "⚛️" },
-                    { id: "next", name: "Next.js", icon: "▲" },
-                    { id: "vue", name: "Vue", icon: "💚" },
-                    { id: "vanilla", name: "HTML/CSS/JS", icon: "🎨" },
-                  ].map((fw) => (
-                    <button
-                      key={fw.id}
-                      onClick={() => setFramework(fw.id as any)}
-                      className={`p-4 rounded-lg border-2 transition-all ${
-                        framework === fw.id
-                          ? "border-accent bg-accent/10"
-                          : "border-primary/20 hover:border-accent/50 bg-primary-dark"
-                      }`}
-                    >
-                      <div className="text-2xl mb-2">{fw.icon}</div>
-                      <div className="text-sm font-medium">{fw.name}</div>
-                    </button>
-                  ))}
-                </div>
+                <label className="block text-sm font-medium mb-2">Nombre del Proyecto</label>
+                <Input
+                  placeholder="Ej: Mi Aplicación Web"
+                  value={projectName}
+                  onChange={(e) => setProjectName(e.target.value)}
+                  className="bg-surface border-primary/20 focus:border-primary"
+                  disabled={isGenerating}
+                />
               </div>
 
-              {/* Prompt Textarea */}
               <div>
-                <label className="block text-sm font-medium mb-3">Describe tu aplicación en detalle</label>
+                <label className="block text-sm font-medium mb-2">
+                  Descripción Detallada
+                </label>
                 <Textarea
+                  placeholder="Describe tu aplicación en detalle... Ej: Quiero una aplicación de gestión de tareas con autenticación, donde los usuarios puedan crear, editar y eliminar tareas. Debe tener un diseño moderno con tema oscuro."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Ejemplo:
-
-Quiero crear una landing page para mi cafetería 'Café Aroma' con las siguientes secciones:
-
-1. Hero Section:
-   - Imagen de fondo de una taza de café
-   - Título: 'El mejor café de la ciudad'
-   - Botón CTA: 'Ver menú'
-
-2. Menú:
-   - Categorías: Cafés Calientes, Cafés Fríos, Postres
-   - Cards con imagen, nombre, descripción y precio
-   - Botón 'Ordenar' en cada item
-
-3. Galería de Fotos:
-   - Grid de 6 fotos del local y productos
-   - Efecto hover con zoom
-
-4. Nosotros:
-   - Historia de la cafetería
-   - Misión y valores
-
-5. Contacto:
-   - Formulario: nombre, email, mensaje
-   - Mapa de ubicación
-   - Horarios de atención
-
-6. Footer:
-   - Links a redes sociales
-   - Copyright
-
-Estilo: Moderno y acogedor, colores cálidos (marrones, beige, crema). Responsive para móviles."
-                  rows={20}
-                  className="resize-none font-mono text-sm"
+                  className="bg-surface border-primary/20 focus:border-primary min-h-[200px]"
+                  disabled={isGenerating}
                 />
-                <p className="text-xs text-secondary mt-2">
-                  💡 Tip: Cuanto más detallado, mejor será el resultado. Menciona secciones, funcionalidades, estilo
-                  visual, colores, interacciones, etc.
+                <p className="text-xs text-muted-foreground mt-2">
+                  Sé específico sobre las funcionalidades, diseño y tecnologías que deseas
                 </p>
               </div>
 
-              {/* Credit Estimation */}
-              <div className="bg-accent/10 border border-accent/30 rounded-lg p-4">
-                <div className="flex items-start gap-3">
-                  <Zap className="w-5 h-5 text-highlight mt-0.5" />
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-highlight mb-1">Estimación de Créditos</h4>
-                    <p className="text-sm text-secondary">
-                      Esta generación consumirá aproximadamente{" "}
-                      <span className="font-bold text-white">{estimatedCredits.toLocaleString()} créditos</span>
-                    </p>
-                    {estimatedCredits > credits && (
-                      <p className="text-sm text-red-400 flex items-center gap-2 mt-2">
-                        <AlertCircle className="w-4 h-4" />
-                        Créditos insuficientes. Necesitas comprar más créditos.
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Generate Button */}
               <Button
                 onClick={handleGenerate}
-                disabled={!description.trim() || estimatedCredits > credits || isGenerating}
-                className="w-full h-14 text-lg glow-hover"
+                disabled={!projectName || !description || isGenerating}
                 size="lg"
+                className="w-full gradient-primary hover:glow-primary text-lg py-6 transition-all"
               >
                 {isGenerating ? (
                   <>
-                    <div className="w-5 h-5 mr-2 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Generando...
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Generando tu aplicación...
                   </>
                 ) : (
                   <>
@@ -196,37 +139,93 @@ Estilo: Moderno y acogedor, colores cálidos (marrones, beige, crema). Responsiv
                   </>
                 )}
               </Button>
-            </div>
+
+              {isGenerating && (
+                <div className="glass rounded-lg p-6 animate-pulse-slow">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
+                    <span className="text-sm text-accent font-medium">
+                      JoxCoder AI está trabajando...
+                    </span>
+                  </div>
+                  <div className="space-y-2 text-sm text-muted-foreground">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-1 h-1 bg-primary rounded-full"></div>
+                      <span>Analizando requisitos</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-1 h-1 bg-primary rounded-full"></div>
+                      <span>Generando estructura de archivos</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-1 h-1 bg-primary rounded-full"></div>
+                      <span>Escribiendo código optimizado</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-1 h-1 bg-primary rounded-full"></div>
+                      <span>Configurando dependencias</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </CardContent>
           </Card>
 
-          {/* Tips */}
-          <Card className="p-6 bg-primary-dark/50">
-            <h3 className="font-semibold mb-3 flex items-center gap-2">
-              <Lightbulb className="w-5 h-5 text-highlight" />
-              Consejos para mejores resultados
-            </h3>
-            <ul className="space-y-2 text-sm text-secondary">
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                <span>Especifica todas las secciones que necesitas</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                <span>Describe el estilo visual (colores, fuentes, espaciado)</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                <span>Menciona si necesita ser responsive (móvil/tablet)</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                <span>Indica interacciones (formularios, animaciones, hover effects)</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                <span>Puedes mencionar tecnologías específicas (TailwindCSS, Framer Motion, etc.)</span>
-              </li>
-            </ul>
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold mb-6 flex items-center">
+              <Sparkles className="w-6 h-6 text-accent mr-2" />
+              Plantillas Rápidas
+            </h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              {templates.map((template, idx) => (
+                <Card
+                  key={idx}
+                  className="glass hover:glow-primary transition-all cursor-pointer group"
+                  onClick={() => {
+                    if (!isGenerating) {
+                      setProjectName(template.title);
+                      setDescription(template.prompt);
+                    }
+                  }}
+                >
+                  <CardHeader>
+                    <CardTitle className="text-lg group-hover:text-accent transition-colors">
+                      {template.title}
+                    </CardTitle>
+                    <CardDescription>{template.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full border-primary/30 hover:border-primary"
+                      disabled={isGenerating}
+                    >
+                      Usar Plantilla
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          <Card className="glass border-accent/20">
+            <CardContent className="p-6">
+              <div className="flex items-start space-x-4">
+                <div className="w-10 h-10 rounded-full gradient-accent flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-2">Consejos para mejores resultados</h3>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• Describe funcionalidades específicas que necesitas</li>
+                    <li>• Menciona el tipo de diseño o estilo visual deseado</li>
+                    <li>• Incluye detalles sobre la estructura de datos</li>
+                    <li>• Especifica si necesitas autenticación o base de datos</li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
           </Card>
         </div>
       </main>

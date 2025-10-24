@@ -20,10 +20,11 @@
 
 AUTOCREA utiliza la paleta de colores del ecosistema JoxAI:
 
-- **Primary**: `#001F4C` (Azul oscuro)
-- **Accent**: `#A300FF` (Púrpura brillante)
-- **Highlight**: `#00FFFF` (Cian eléctrico)
-- **Background**: Dark mode con gradientes sutiles
+- **Primary**: `#4A90E2` (Azul profesional)
+- **Secondary**: `#9B59B6` (Púrpura moderno)
+- **Accent**: `#00D9FF` (Cian brillante)
+- **Background**: `#0A0E27` (Azul oscuro profundo)
+- **Surface**: `#1a1f3a` (Azul oscuro medio)
 
 ## 🛠️ Stack Tecnológico
 
@@ -32,6 +33,7 @@ AUTOCREA utiliza la paleta de colores del ecosistema JoxAI:
 - **Styling**: TailwindCSS + shadcn/ui
 - **Editor**: Monaco Editor
 - **Terminal**: Xterm.js
+- **Database**: Convex (ready to integrate)
 - **Authentication**: Clerk (ready to integrate)
 - **Payments**: Stripe (ready to integrate)
 
@@ -56,6 +58,10 @@ npm run build
 ### Variables de Entorno Requeridas
 
 ```env
+# Convex Database
+NEXT_PUBLIC_CONVEX_URL=https://...
+CONVEX_DEPLOYMENT=...
+
 # Clerk Authentication
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
 CLERK_SECRET_KEY=sk_test_...
@@ -102,14 +108,15 @@ autocrea/
 
 Esta versión base incluye toda la estructura UI/UX. Las siguientes integraciones están listas para implementarse:
 
-1. **Clerk Authentication**: Configurar con las API keys
-2. **Hugging Face JoxCoder**: Conectar con el modelo de IA
-3. **Stripe Payments**: Sistema de compra de créditos
-4. **Monaco Editor**: Editor de código avanzado
-5. **Xterm.js**: Terminal funcional
-6. **WebContainers**: Ejecución de código en navegador
-7. **Netlify Deploy**: Deploy automático
-8. **GitHub Integration**: Push a repositorios
+1. **Convex Database**: Configurar esquema y funciones para proyectos y usuarios
+2. **Clerk Authentication**: Configurar con las API keys
+3. **Hugging Face JoxCoder**: Conectar con el modelo de IA
+4. **Stripe Payments**: Sistema de compra de créditos
+5. **Monaco Editor**: Editor de código avanzado
+6. **Xterm.js**: Terminal funcional
+7. **WebContainers**: Ejecución de código en navegador
+8. **Netlify Deploy**: Deploy automático
+9. **GitHub Integration**: Push a repositorios
 
 ## 📝 Uso
 

@@ -25,14 +25,12 @@ Según tu tabla, he configurado:
 
 ```css
 /* Colores principales */
---primary: #001F4C (Azul Medianoche Profundo)
---primary-dark: #081046 (Negro Intenso Azabache)
---accent: #A300FF (Morado Neón Brillante - Brillo 1)
---accent-bright: #B400FF (Morado Neón - Encendido)
---highlight: #00FFFF (Azul Eléctrico Brilloso - Brillo 2)
---highlight-electric: #00CCFF (Azul Eléctrico Brilloso - Complementario)
---secondary: #B0B0C4 (Gris Claro Frío - Texto Secundario)
---secondary-neutral: #6D6D83 (Texto Secundario/Neutro)
+--primary: #4A90E2 (Azul profesional)
+--secondary: #9B59B6 (Púrpura moderno)
+--accent: #00D9FF (Cian brillante)
+--background: #0A0E27 (Azul oscuro profundo)
+--surface: #1a1f3a (Azul oscuro medio)
+--surface-light: #242b4a (Azul oscuro claro)
 ```
 
 Los colores están aplicados en:
@@ -204,68 +202,88 @@ export async function POST(request: Request) {
 }
 ```
 
-### 4. Supabase Database (opcional pero recomendado)
+### 4. Convex Database (recomendado)
 
-Según el system reminder, hay una base de datos Supabase disponible. Para usarla:
+Para configurar Convex como base de datos:
 
-1. Instala el cliente:
+1. Ve a [convex.dev](https://convex.dev) y crea una cuenta
+
+2. Instala Convex:
 
 ```bash
-npm install @supabase/supabase-js
+npm install convex
+npx convex dev
 ```
 
-2. Configura en `.env.local`:
+3. Configura en `.env.local`:
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGc...
+NEXT_PUBLIC_CONVEX_URL=https://xxx.convex.cloud
+CONVEX_DEPLOYMENT=xxx
 ```
 
-3. Crea el cliente en `lib/supabase.ts`:
+4. Crea el esquema en `convex/schema.ts`:
 
 ```typescript
-import { createClient } from '@supabase/supabase-js'
+import { defineSchema, defineTable } from "convex/server";
+import { v } from "convex/values";
 
-export const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+export default defineSchema({
+  projects: defineTable({
+    userId: v.string(),
+    name: v.string(),
+    description: v.optional(v.string()),
+    framework: v.string(),
+    files: v.any(),
+    creditsUsed: v.number(),
+  }).index("by_user", ["userId"]),
+
+  userCredits: defineTable({
+    userId: v.string(),
+    credits: v.number(),
+    plan: v.string(),
+  }).index("by_user", ["userId"]),
+
+  creditTransactions: defineTable({
+    userId: v.string(),
+    amount: v.number(),
+    type: v.string(),
+    description: v.optional(v.string()),
+  }).index("by_user", ["userId"]),
+});
 ```
 
-4. Crea las tablas usando el MCP tool:
+5. Crea funciones de consulta en `convex/projects.ts`:
 
-```sql
--- Tabla de proyectos
-CREATE TABLE projects (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id TEXT NOT NULL,
-  name TEXT NOT NULL,
-  description TEXT,
-  framework TEXT,
-  files JSONB,
-  credits_used INTEGER DEFAULT 0,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
+```typescript
+import { query, mutation } from "./_generated/server";
+import { v } from "convex/values";
 
--- Tabla de créditos
-CREATE TABLE user_credits (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id TEXT UNIQUE NOT NULL,
-  credits INTEGER DEFAULT 100,
-  plan TEXT DEFAULT 'free',
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
+export const list = query({
+  args: { userId: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("projects")
+      .filter((q) => q.eq(q.field("userId"), args.userId))
+      .collect();
+  },
+});
 
--- Tabla de transacciones
-CREATE TABLE credit_transactions (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id TEXT NOT NULL,
-  amount INTEGER NOT NULL,
-  type TEXT NOT NULL,
-  description TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
+export const create = mutation({
+  args: {
+    userId: v.string(),
+    name: v.string(),
+    description: v.optional(v.string()),
+    framework: v.string(),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.insert("projects", {
+      ...args,
+      files: {},
+      creditsUsed: 0,
+    });
+  },
+});
 ```
 
 ---
@@ -352,9 +370,9 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_xxx
 STRIPE_SECRET_KEY=sk_test_xxx
 STRIPE_WEBHOOK_SECRET=whsec_xxx
 
-# Supabase (opcional)
-NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJxxx
+# Convex
+NEXT_PUBLIC_CONVEX_URL=https://xxx.convex.cloud
+CONVEX_DEPLOYMENT=xxx
 
 # App
 NEXT_PUBLIC_URL=http://localhost:3000
@@ -379,8 +397,8 @@ NEXT_PUBLIC_URL=http://localhost:3000
    - Implementar checkout
    - Configurar webhooks
 
-4. **Base de datos Supabase** (30 min)
-   - Crear tablas
+4. **Base de datos Convex** (30 min)
+   - Configurar esquema
    - Implementar CRUD de proyectos
    - Sistema de créditos
 
@@ -402,19 +420,22 @@ Si quieres ajustar los colores, edita `tailwind.config.ts`:
 ```typescript
 colors: {
   primary: {
-    DEFAULT: "#001F4C",
-    dark: "#081046",
+    DEFAULT: "#4A90E2",
+    // ... más tonos
+  },
+  secondary: {
+    DEFAULT: "#9B59B6",
     // ... más tonos
   },
   accent: {
-    DEFAULT: "#A300FF",
-    bright: "#B400FF",
+    DEFAULT: "#00D9FF",
     // ... más tonos
   },
-  highlight: {
-    DEFAULT: "#00FFFF",
-    electric: "#00CCFF",
-    // ... más tonos
+  background: "#0A0E27",
+  surface: {
+    DEFAULT: "#1a1f3a",
+    light: "#242b4a",
+    dark: "#0A0E27",
   },
 }
 ```
@@ -426,7 +447,7 @@ colors: {
 - [Next.js Docs](https://nextjs.org/docs)
 - [Clerk Docs](https://clerk.com/docs)
 - [Stripe Docs](https://stripe.com/docs)
-- [Supabase Docs](https://supabase.com/docs)
+- [Convex Docs](https://docs.convex.dev)
 - [Monaco Editor](https://microsoft.github.io/monaco-editor/)
 - [Xterm.js](https://xtermjs.org/)
 - [WebContainers](https://webcontainers.io/)
@@ -438,7 +459,7 @@ colors: {
 - [ ] Configurar Clerk authentication
 - [ ] Obtener API key de Hugging Face
 - [ ] Configurar productos en Stripe
-- [ ] Crear base de datos en Supabase
+- [ ] Crear base de datos en Convex
 - [ ] Integrar Monaco Editor
 - [ ] Integrar Terminal Xterm.js
 - [ ] Implementar WebContainers
