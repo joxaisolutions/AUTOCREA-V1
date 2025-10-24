@@ -4,5 +4,6 @@
   "/sign-up/page": "app/sign-up/page.js",
   "/dashboard/page": "app/dashboard/page.js",
   "/projects/new/page": "app/projects/new/page.js",
-  "/projects/[id]/page": "app/projects/[id]/page.js"
+  "/projects/[id]/page": "app/projects/[id]/page.js",
+  "/docs/page": "app/docs/page.js"
 }
